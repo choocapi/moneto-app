@@ -1,5 +1,6 @@
 import {
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -22,6 +23,7 @@ import { useAuth } from "@/contexts/authContext";
 import { updateUser } from "@/services/userService";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const ProfileModal = () => {
   const { user, updateUserData } = useAuth();
