@@ -1,25 +1,20 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect } from 'react'
-import { colors } from '@/constants/theme'
-import { useRouter } from 'expo-router';
+import { Image, StyleSheet, View } from "react-native";
+import React from "react";
+import { colors } from "@/constants/theme";
 
 const index = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    setTimeout(() => {
-      router.push("/(auth)/welcome");
-    }, 3000);
-  }, []);
-
   return (
     <View style={styles.container}>
-      <Image source={require('@/assets/images/splashImage.png')} style={styles.logo} resizeMode='contain'/>
+      <Image
+        source={require("@/assets/images/splashImage.png")}
+        style={styles.logo}
+        resizeMode="contain"
+      />
     </View>
-  )
-}
+  );
+};
 
-export default index
+export default index;
 
 const styles = StyleSheet.create({
   container: {

@@ -1,28 +1,30 @@
-import { Dimensions, Platform, StyleSheet, Text, View, ViewStyle } from 'react-native'
-import React from 'react'
-import { colors } from '@/constants/theme'
-import { StatusBar } from 'expo-status-bar';
-type ScreenWrapperProps = {
-    style?: ViewStyle;
-  children: React.ReactNode;
-}
+import { Dimensions, Platform, StyleSheet, View } from "react-native";
+import React from "react";
+import { colors } from "@/constants/theme";
+import { StatusBar } from "expo-status-bar";
+import { ScreenWrapperProps } from "@/types";
 
-const {height} = Dimensions.get('window');
+const { height } = Dimensions.get("window");
 
 const ScreenWrapper = ({ style, children }: ScreenWrapperProps) => {
-    let paddingTop = Platform.OS == 'ios' ? height * 0.05 : height * 0.03;
+  let paddingTop = Platform.OS == "ios" ? height * 0.06 : height * 0.03;
   return (
-    <View style={[{
-        paddingTop,
-        flex: 1,
-        backgroundColor: colors.neutral900,
-    }, style]}>
-        <StatusBar style='light' backgroundColor={colors.neutral900}/>
+    <View
+      style={[
+        {
+          paddingTop,
+          flex: 1,
+          backgroundColor: colors.neutral900,
+        },
+        style,
+      ]}
+    >
+      <StatusBar style="light" backgroundColor={colors.neutral900} />
       {children}
     </View>
-  )
-}
+  );
+};
 
-export default ScreenWrapper
+export default ScreenWrapper;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
