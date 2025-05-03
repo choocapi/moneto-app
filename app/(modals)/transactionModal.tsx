@@ -28,6 +28,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { expenseCategories, transactionTypes } from "@/constants/data";
 import useFetchData from "@/hooks/useFetchData";
 import { orderBy, where } from "firebase/firestore";
+import { createOrUpdateTransaction } from "@/services/transactionService";
 
 const TransactionModal = () => {
   const { user } = useAuth();
@@ -78,28 +79,37 @@ const TransactionModal = () => {
   //   }
   // }, []);
 
-  const handleSubmit = async () => {
-    // let { name, amount, image } = transaction;
-    // if (!name.trim() || !amount || !image) {
-    //   Alert.alert("Cảnh báo", "Bạn cần nhập đầy đủ thông tin");
-    //   return;
-    // }
-    // const data: WalletType = {
-    //   name,
-    //   amount,
-    //   image,
-    //   uid: user?.uid,
-    // };
-    // if (oldTransaction?.id) data.id = oldTransaction.id;
-    // setLoading(true);
-    // const res = await createOrUpdateWallet(data);
-    // setLoading(false);
-    // console.log("result wallet: ", res);
-    // if (res.success) {
-    //   router.back();
-    // } else {
-    //   Alert.alert("Thông báo", res.msg || "Thêm ví thất bại");
-    // }
+  const onSubmit = async () => {
+    const { type, amount, description, category, date, walletId, image } =
+      transaction;
+
+    // todo: if type is 'income' --> category must empty string ""
+
+    if (!walletId || !date || !amount || (type == "expense" && !category)) {
+      Alert.alert("Cảnh báo", "Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
+
+    let transactionData: TransactionType = {
+      type,
+      amount,
+      description,
+      category,
+      date,
+      walletId,
+      image,
+      uid: user?.uid,
+    };
+
+    // todo: include transaction id for updating
+    setLoading(true);
+    const res = await createOrUpdateTransaction(transactionData);
+    setLoading(false);
+    if (res.success) {
+      router.back();
+    } else {
+      Alert.alert("Cảnh báo", res.msg);
+    }
   };
 
   const onDelete = async () => {
@@ -360,7 +370,7 @@ const TransactionModal = () => {
             />
           </Button>
         )}
-        <Button onPress={handleSubmit} loading={loading} style={{ flex: 1 }}>
+        <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
             {oldTransaction?.id ? "Cập nhật" : "Thêm"}
           </Typo>

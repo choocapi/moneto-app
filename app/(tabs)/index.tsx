@@ -10,10 +10,26 @@ import HomeCard from "@/components/HomeCard";
 import TransactionList from "@/components/TransactionList";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import { limit, orderBy, where } from "firebase/firestore";
+import useFetchData from "@/hooks/useFetchData";
+import { TransactionType } from "@/types";
 
 const Home = () => {
   const { user } = useAuth();
   const router = useRouter();
+
+  const constraints = [
+    where("uid", "==", user?.uid),
+    orderBy("date", "desc"),
+    limit(15),
+  ];
+
+  const {
+    data: recentTransactions,
+    error: transactionError,
+    loading: transactionLoading,
+  } = useFetchData<TransactionType>("transactions", constraints);
+
   return (
     <ScreenWrapper>
       <View style={styles.container}>
@@ -47,8 +63,8 @@ const Home = () => {
 
           {/* transaction list */}
           <TransactionList
-            data={[1, 2, 3, 4, 5, 6, 7]}
-            loading={false}
+            data={recentTransactions}
+            loading={transactionLoading}
             emptyListMessage="Chưa có hoạt động nào được ghi nhận!"
             title="Lịch sử giao dịch"
           />
@@ -56,7 +72,9 @@ const Home = () => {
 
         <Button
           style={styles.floatingButton}
-          onPress={() => router.push("/(modals)/transactionModal")}
+          onPress={() => {
+            router.push("/(modals)/transactionModal");
+          }}
         >
           <Icons.Plus
             color={colors.black}

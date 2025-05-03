@@ -1,7 +1,6 @@
 import { firestore } from "@/config/firebase";
 import {
   collection,
-  doc,
   onSnapshot,
   query,
   QueryConstraint,
@@ -41,7 +40,8 @@ const useFetchData = <T>(
     );
 
     return () => unsub();
-  });
+  }, [collectionName, JSON.stringify(constraints)]);
+
   return { data, loading, error };
 };
 
