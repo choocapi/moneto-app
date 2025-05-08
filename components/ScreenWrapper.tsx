@@ -7,7 +7,7 @@ import { ScreenWrapperProps } from "@/types";
 const { height } = Dimensions.get("window");
 
 const ScreenWrapper = ({ style, children }: ScreenWrapperProps) => {
-  let paddingTop = Platform.OS == "ios" ? height * 0.06 : height * 0.03;
+  let paddingTop = Platform.OS == "ios" ? height * 0.06 : height * 0.06;
   return (
     <View
       style={[

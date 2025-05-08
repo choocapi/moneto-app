@@ -25,20 +25,21 @@ const WalletModal = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const params = useLocalSearchParams();
-  const oldWallet = {
-    name: params.name as string,
-    amount: Number(params.amount),
-    image: decodeImageUrl(params.image as string),
-    id: params.id as string,
+  type paramType = {
+    name: string;
+    amount: string;
+    image: any;
+    id: string;
   };
+
+  const oldWallet: paramType = useLocalSearchParams();
 
   useEffect(() => {
     if (oldWallet?.id) {
       setWallet({
         name: oldWallet?.name,
-        image: oldWallet?.image,
-        amount: oldWallet?.amount,
+        image: decodeImageUrl(oldWallet?.image),
+        amount: Number(oldWallet?.amount),
       });
     }
   }, []);
@@ -60,7 +61,7 @@ const WalletModal = () => {
     setLoading(true);
     const res = await createOrUpdateWallet(data);
     setLoading(false);
-    console.log("result wallet: ", res);
+    // console.log("result wallet: ", res);
     if (res.success) {
       router.back();
     } else {
@@ -87,7 +88,7 @@ const WalletModal = () => {
       [
         {
           text: "Hủy",
-          onPress: () => console.log("cancel delete"),
+          onPress: () => {},
           style: "cancel",
         },
         {

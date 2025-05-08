@@ -28,7 +28,10 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { expenseCategories, transactionTypes } from "@/constants/data";
 import useFetchData from "@/hooks/useFetchData";
 import { orderBy, where } from "firebase/firestore";
-import { createOrUpdateTransaction } from "@/services/transactionService";
+import {
+  createOrUpdateTransaction,
+  deleteTransaction,
+} from "@/services/transactionService";
 
 const TransactionModal = () => {
   const { user } = useAuth();
@@ -55,13 +58,19 @@ const TransactionModal = () => {
     orderBy("created", "desc"),
   ]);
 
-  const params = useLocalSearchParams();
-  const oldTransaction = {
-    name: params.name as string,
-    amount: Number(params.amount),
-    image: decodeImageUrl(params.image as string),
-    id: params.id as string,
+  type paramType = {
+    id: string;
+    type: string;
+    amount: string;
+    category?: string;
+    date: string;
+    description?: string;
+    image?: any;
+    uid?: string;
+    walletId: string;
   };
+
+  const oldTransaction: paramType = useLocalSearchParams();
 
   const onDateChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate || transaction.date;
@@ -69,21 +78,23 @@ const TransactionModal = () => {
     setShowDatePicker(Platform.OS == "ios" ? true : false);
   };
 
-  // useEffect(() => {
-  //   if (oldTransaction?.id) {
-  //     setTransaction({
-  //       name: oldTransaction?.name,
-  //       image: oldTransaction?.image,
-  //       amount: oldTransaction?.amount,
-  //     });
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (oldTransaction?.id) {
+      setTransaction({
+        type: oldTransaction?.type,
+        amount: Number(oldTransaction.amount),
+        description: oldTransaction.description || "",
+        category: oldTransaction.category || "",
+        date: new Date(oldTransaction.date),
+        walletId: oldTransaction.walletId,
+        image: decodeImageUrl(oldTransaction?.image),
+      });
+    }
+  }, []);
 
   const onSubmit = async () => {
     const { type, amount, description, category, date, walletId, image } =
       transaction;
-
-    // todo: if type is 'income' --> category must empty string ""
 
     if (!walletId || !date || !amount || (type == "expense" && !category)) {
       Alert.alert("Cảnh báo", "Vui lòng nhập đầy đủ thông tin");
@@ -97,11 +108,11 @@ const TransactionModal = () => {
       category,
       date,
       walletId,
-      image,
+      image: image ? image : null,
       uid: user?.uid,
     };
 
-    // todo: include transaction id for updating
+    if (oldTransaction?.id) transactionData.id = oldTransaction.id;
     setLoading(true);
     const res = await createOrUpdateTransaction(transactionData);
     setLoading(false);
@@ -115,32 +126,31 @@ const TransactionModal = () => {
   const onDelete = async () => {
     if (!oldTransaction?.id) return;
     setLoading(true);
-    const res = await deleteWallet(oldTransaction?.id);
+    const res = await deleteTransaction(
+      oldTransaction?.id,
+      oldTransaction.walletId
+    );
     setLoading(false);
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Wallets", res.msg);
+      Alert.alert("Transaction", res.msg);
     }
   };
 
   const showDeleteAlert = () => {
-    Alert.alert(
-      "Xác nhận",
-      "Bạn chắc chắn muốn xóa ví này?\nViệc xóa ví này sẽ đồng thời xóa các lịch sử ghi liên quan",
-      [
-        {
-          text: "Hủy",
-          onPress: () => console.log("cancel delete"),
-          style: "cancel",
-        },
-        {
-          text: "Xóa",
-          onPress: () => onDelete(),
-          style: "destructive",
-        },
-      ]
-    );
+    Alert.alert("Xác nhận", "Bạn chắc chắn muốn xóa giao dịch này?", [
+      {
+        text: "Hủy",
+        onPress: () => console.log("cancel delete"),
+        style: "cancel",
+      },
+      {
+        text: "Xóa",
+        onPress: () => onDelete(),
+        style: "destructive",
+      },
+    ]);
   };
 
   return (

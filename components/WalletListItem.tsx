@@ -25,7 +25,7 @@ const WalletListItem = ({
       params: {
         id: item?.id,
         name: item?.name,
-        amount: item?.amount,
+        amount: item?.amount?.toString(),
         image: encodeImageUrl(item?.image),
       },
     });

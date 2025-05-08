@@ -56,7 +56,9 @@ const Profile = () => {
       {
         text: "Hủy",
         style: "cancel",
-        onPress: () => console.log("cancel logout"),
+        onPress: () => {
+          // console.log("cancel logout")
+        },
       },
       {
         text: "Đăng xuất",

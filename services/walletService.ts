@@ -1,7 +1,16 @@
 import { ResponseType, WalletType } from "@/types";
 import { uploadFileToStorage } from "./imageService";
 import { firestore } from "@/config/firebase";
-import { collection, deleteDoc, doc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+  writeBatch,
+} from "firebase/firestore";
 
 export const createOrUpdateWallet = async (
   walletData: Partial<WalletType>
@@ -49,11 +58,49 @@ export const deleteWallet = async (walletId: string): Promise<ResponseType> => {
     const walletRef = doc(firestore, "wallets", walletId);
     await deleteDoc(walletRef);
 
-    // todo: delete all transactions related to this wallet
+    deleteTransactionByWalletId(walletId);
 
     return { success: true, msg: "Đã xóa ví thành công" };
   } catch (error: any) {
     console.log("error deleting wallet: ", error);
+    return { success: false, msg: error.message };
+  }
+};
+
+export const deleteTransactionByWalletId = async (
+  walletId: string
+): Promise<ResponseType> => {
+  try {
+    let hasMoreTransactions = true;
+
+    while (hasMoreTransactions) {
+      const transactionsQuery = query(
+        collection(firestore, "transactions"),
+        where("walletId", "==", walletId)
+      );
+
+      const transactionsSnapshot = await getDocs(transactionsQuery);
+      if (transactionsSnapshot.size == 0) {
+        hasMoreTransactions = false;
+        break;
+      }
+
+      const batch = writeBatch(firestore);
+
+      transactionsSnapshot.forEach((transactionDoc) => {
+        batch.delete(transactionDoc.ref);
+      });
+
+      await batch.commit();
+
+      console.log(
+        `${transactionsSnapshot.size} transactions detected in this batch`
+      );
+    }
+
+    return { success: true, msg: "Tất cả giao dịch đã được xóa thành công" };
+  } catch (error: any) {
+    console.log("error deleting transactions by wallerId: ", error);
     return { success: false, msg: error.message };
   }
 };
