@@ -1,10 +1,9 @@
-import { Alert, Pressable, StyleSheet, View } from "react-native";
-import React, { useRef, useState } from "react";
+import { Alert, Image, Pressable, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { verticalScale } from "@/utils/styling";
-import BackButton from "@/components/BackButton";
 import Input from "@/components/Input";
 import * as Icons from "phosphor-react-native";
 import Button from "@/components/Button";
@@ -15,48 +14,42 @@ const Register = () => {
   const router = useRouter();
   const { register: registerUser } = useAuth();
 
-  const emailRef = useRef("");
-  const nameRef = useRef("");
-  const passwordRef = useRef("");
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!emailRef.current || !passwordRef.current || !nameRef.current) {
-      Alert.alert("Đăng ký", "Vui lòng nhập đầy đủ thông tin");
+    if (!email || !password || !name) {
+      Alert.alert("Cảnh báo", "Vui lòng nhập đầy đủ thông tin");
       return;
     }
     setLoading(true);
-    const res = await registerUser(
-      emailRef.current,
-      passwordRef.current,
-      nameRef.current
-    );
+    const res = await registerUser(email, password, name);
     setLoading(false);
     if (!res.success) {
-      Alert.alert("Sign up", res.msg);
+      Alert.alert("Lỗi", res.msg);
     }
   };
 
   return (
     <ScreenWrapper>
       <View style={styles.container}>
-        <BackButton iconSize={28} />
-
-        <View style={{ gap: 5, marginTop: spacingY._20 }}>
-          {/* <Typo size={30} fontWeight={'800'} >Hey,</Typo> */}
-          <Typo size={30} fontWeight={"800"}>
-            Cùng bắt đầu nào!
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("@/assets/images/splashImage.png")}
+            style={styles.logo}
+          />
+          <Typo size={30} fontWeight={"700"}>
+            Moneto
           </Typo>
         </View>
 
         <View style={styles.form}>
-          <Typo size={16} color={colors.textLighter}>
-            Tạo tài khoản mới để theo dõi thu chi
-          </Typo>
           <Input
             placeholder="Nhập tên của bạn"
             onChangeText={(value) => {
-              nameRef.current = value;
+              setName(value);
             }}
             icon={
               <Icons.User
@@ -69,7 +62,7 @@ const Register = () => {
           <Input
             placeholder="Nhập email của bạn"
             onChangeText={(value) => {
-              emailRef.current = value;
+              setEmail(value);
             }}
             icon={
               <Icons.At
@@ -81,9 +74,9 @@ const Register = () => {
           />
           <Input
             placeholder="Nhập mật khẩu của bạn"
-            secureTextEntry={true}
+            type="password"
             onChangeText={(value) => {
-              passwordRef.current = value;
+              setPassword(value);
             }}
             icon={
               <Icons.Lock
@@ -100,12 +93,32 @@ const Register = () => {
           </Button>
         </View>
 
-        <View style={styles.footer}>
+        <View style={styles.authOptions}>
           <Typo size={15}>Bạn đã có tài khoản?</Typo>
           <Pressable onPress={() => router.navigate("/(auth)/login")}>
             <Typo size={15} color={colors.primary} fontWeight={"700"}>
               Đăng nhập
             </Typo>
+          </Pressable>
+        </View>
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Typo size={15}>Hoặc đăng nhập bằng</Typo>
+          <View style={styles.dividerLine} />
+        </View>
+        <View style={styles.socialButtonContainer}>
+          <Pressable>
+            <Image
+              source={require("@/assets/images/google.png")}
+              style={styles.socialButton}
+            />
+          </Pressable>
+          <Pressable>
+            <Image
+              source={require("@/assets/images/facebook.png")}
+              style={styles.socialButton}
+            />
           </Pressable>
         </View>
       </View>
@@ -121,28 +134,44 @@ const styles = StyleSheet.create({
     gap: spacingY._30,
     paddingHorizontal: spacingX._20,
   },
-  welcomeText: {
-    fontSize: verticalScale(20),
-    fontWeight: "bold",
-    color: colors.text,
+  logoContainer: {
+    gap: 5,
+    marginTop: spacingY._30,
+    marginBottom: spacingY._10,
+    alignItems: "center",
+  },
+  logo: {
+    width: verticalScale(100),
+    height: verticalScale(100),
   },
   form: {
     gap: spacingY._20,
   },
-  forgotPassword: {
-    textAlign: "right",
-    fontWeight: "500",
-    color: colors.text,
-  },
-  footer: {
+  authOptions: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 5,
   },
-  footerText: {
-    textAlign: "center",
-    color: colors.text,
-    fontSize: verticalScale(15),
+  divider: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dividerLine: {
+    height: 1,
+    flex: 1,
+    backgroundColor: colors.neutral700,
+    marginHorizontal: spacingX._10,
+  },
+  socialButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 32,
+  },
+  socialButton: {
+    width: verticalScale(40),
+    height: verticalScale(40),
   },
 });

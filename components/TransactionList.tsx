@@ -15,6 +15,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { Timestamp } from "firebase/firestore";
 import { useRouter } from "expo-router";
 import { encodeImageUrl } from "@/services/imageService";
+import { formatCurrency } from "@/utils/common";
 
 const TransactionList = ({
   data,
@@ -89,7 +90,7 @@ const TransactionItem = ({
   const IconComponent = category.icon;
   const date = (item?.date as Timestamp)
     ?.toDate()
-    ?.toLocaleDateString("vn-GB", {
+    ?.toLocaleDateString("vi-VN", {
       day: "numeric",
       month: "short",
     });
@@ -127,7 +128,7 @@ const TransactionItem = ({
             fontWeight={"500"}
             color={item?.type == "income" ? colors.primary : colors.rose}
           >
-            {`${item?.type == "income" ? "+ " : "- "}${item?.amount} ₫`}
+            {`${formatCurrency(item?.amount || 0, "vi-VN", "VND")}`}
           </Typo>
           <Typo size={13} color={colors.neutral400}>
             {date}

@@ -8,6 +8,7 @@ import useFetchData from "@/hooks/useFetchData";
 import { WalletType } from "@/types";
 import { orderBy, where } from "firebase/firestore";
 import { useAuth } from "@/contexts/authContext";
+import { formatCurrency } from "@/utils/common";
 
 const HomeCard = () => {
   const { user } = useAuth();
@@ -53,7 +54,9 @@ const HomeCard = () => {
             />
           </View>
           <Typo color={colors.black} size={30} fontWeight={"bold"}>
-            {walletLoading ? "----" : getTotals()?.balance?.toFixed(2)} ₫
+            {walletLoading
+              ? "----"
+              : formatCurrency(getTotals()?.balance, "vi-VN", "VND")}
           </Typo>
         </View>
         {/* total expense & income */}
@@ -69,12 +72,14 @@ const HomeCard = () => {
                 />
               </View>
               <Typo size={16} color={colors.neutral700} fontWeight={"500"}>
-                Thu nhập
+                Tổng thu
               </Typo>
             </View>
             <View style={{ alignSelf: "center" }}>
               <Typo size={17} color={colors.green} fontWeight={"600"}>
-                {walletLoading ? "----" : getTotals()?.income?.toFixed(2)} ₫
+                {walletLoading
+                  ? "----"
+                  : formatCurrency(getTotals()?.income, "vi-VN", "VND")}
               </Typo>
             </View>
           </View>
@@ -89,12 +94,14 @@ const HomeCard = () => {
                 />
               </View>
               <Typo size={16} color={colors.neutral700} fontWeight={"500"}>
-                Chi tiêu
+                Tổng chi
               </Typo>
             </View>
             <View style={{ alignSelf: "center" }}>
               <Typo size={17} color={colors.rose} fontWeight={"600"}>
-                {walletLoading ? "----" : getTotals()?.expenses?.toFixed(2)} ₫
+                {walletLoading
+                  ? "----"
+                  : formatCurrency(getTotals()?.expenses, "vi-VN", "VND")}
               </Typo>
             </View>
           </View>

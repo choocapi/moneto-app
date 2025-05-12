@@ -15,6 +15,12 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import ImageUpload from "@/components/ImageUpload";
 import { createOrUpdateWallet, deleteWallet } from "@/services/walletService";
 import { decodeImageUrl } from "@/services/imageService";
+import {
+  formatCurrency,
+  formatNumberInput,
+  getNumberInput,
+} from "@/utils/common";
+
 const WalletModal = () => {
   const { user, updateUserData } = useAuth();
   const router = useRouter();
@@ -65,7 +71,7 @@ const WalletModal = () => {
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Thông báo", res.msg || "Thêm ví thất bại");
+      Alert.alert("Lỗi", res.msg || "Thêm ví thất bại");
     }
   };
 
@@ -77,7 +83,7 @@ const WalletModal = () => {
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Wallets", res.msg);
+      Alert.alert("Lỗi", res.msg);
     }
   };
 
@@ -104,7 +110,7 @@ const WalletModal = () => {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title={oldWallet?.id ? "Cập nhật ví" : "Thêm ví"}
+          title={oldWallet?.id ? "Cập nhật tài khoản" : "Thêm tài khoản"}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -113,7 +119,7 @@ const WalletModal = () => {
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200}>Tên ví</Typo>
             <Input
-              placeholder="Nhập tên ví"
+              placeholder="Tên tài khoản"
               value={wallet.name}
               onChangeText={(value) => setWallet({ ...wallet, name: value })}
             />
@@ -121,12 +127,14 @@ const WalletModal = () => {
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200}>Số dư</Typo>
             <Input
-              placeholder="Nhập số dư (VND)"
+              placeholder="Số dư ban đầu"
               keyboardType="numeric"
-              value={wallet.amount?.toString()}
-              onChangeText={(value) =>
-                setWallet({ ...wallet, amount: Number(value) })
-              }
+              type="currency"
+              value={formatNumberInput(wallet?.amount?.toString() || "")}
+              onChangeText={(value) => {
+                const numericValue = getNumberInput(value);
+                setWallet({ ...wallet, amount: Number(numericValue) });
+              }}
             />
           </View>
           <View style={styles.inputContainer}>
@@ -135,7 +143,7 @@ const WalletModal = () => {
               file={wallet.image}
               onClear={() => setWallet({ ...wallet, image: null })}
               onSelect={(file) => setWallet({ ...wallet, image: file })}
-              placeholder="Chọn biểu tượng"
+              placeholder="Chọn hình ảnh"
             />
           </View>
         </ScrollView>
@@ -156,9 +164,18 @@ const WalletModal = () => {
             />
           </Button>
         )}
-        <Button onPress={handleSubmit} loading={loading} style={{ flex: 1 }}>
+        <Button
+          onPress={handleSubmit}
+          loading={loading}
+          style={styles.buttonContainer}
+        >
+          <Icons.FloppyDisk
+            color={colors.black}
+            size={verticalScale(24)}
+            weight="bold"
+          />
           <Typo color={colors.black} fontWeight={"700"}>
-            {oldWallet?.id ? "Cập nhật" : "Thêm"}
+            Lưu
           </Typo>
         </Button>
       </View>
@@ -217,5 +234,10 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     gap: spacingY._10,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: "row",
+    gap: spacingX._5,
   },
 });

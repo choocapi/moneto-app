@@ -1,4 +1,4 @@
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { colors, spacingY } from "@/constants/theme";
 import ModalWrapper from "@/components/ModalWrapper";
@@ -9,13 +9,10 @@ import { TransactionType } from "@/types";
 import { useAuth } from "@/contexts/authContext";
 import { orderBy, where } from "firebase/firestore";
 import useFetchData from "@/hooks/useFetchData";
-import { useRouter } from "expo-router";
 import TransactionList from "@/components/TransactionList";
 
 const SearchModal = () => {
-  const { user, updateUserData } = useAuth();
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
 
   const constraints = [where("uid", "==", user?.uid), orderBy("date", "desc")];

@@ -8,10 +8,19 @@ import { BackButtonProps } from "@/types";
 
 const BackButton = ({ style, iconSize = 26 }: BackButtonProps) => {
   const router = useRouter();
+
+  const handleBack = () => {
+    router.setParams({});
+    setTimeout(() => {
+      router.back();
+    }, 50);
+  };
+
   return (
     <TouchableOpacity
-      onPress={() => router.back()}
+      onPress={handleBack}
       style={[styles.button, style]}
+      activeOpacity={0.7}
     >
       <CaretLeft
         size={verticalScale(iconSize)}

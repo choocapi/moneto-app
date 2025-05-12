@@ -2,27 +2,13 @@ import { auth, firestore } from "@/config/firebase";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { UserType } from "@/types";
-
-type AuthContextType = {
-  user: UserType;
-  setUser: Function;
-  login: (
-    email: string,
-    password: string
-  ) => Promise<{ success: boolean; msg?: string }>;
-  register: (
-    email: string,
-    password: string,
-    name: string
-  ) => Promise<{ success: boolean; msg?: string }>;
-  updateUserData: (userId: string) => Promise<void>;
-};
+import { AuthContextType, UserType } from "@/types";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -31,24 +17,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<UserType>(null);
   const router = useRouter();
 
-  // Check if user is logged in
+  // Check user when app is loaded
   useEffect(() => {
     const unsubcribe = onAuthStateChanged(auth, (firebaseUser) => {
-      // console.log('firebaseUser: ', firebaseUser);
       if (firebaseUser) {
         setUser({
           uid: firebaseUser?.uid,
           email: firebaseUser?.email,
           name: firebaseUser?.displayName,
         });
-        updateUserData(firebaseUser?.uid); // Why do we need to update user data here?
+        updateUserData(firebaseUser?.uid);
         router.replace("/(tabs)");
       } else {
         setUser(null);
         router.replace("/(auth)/welcome");
       }
     });
-    return () => unsubcribe(); // Why do we need to return function?
+    return () => unsubcribe();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -57,7 +42,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return { success: true };
     } catch (error: any) {
       let msg = error.message;
-      // console.log('login msg: ', msg);
       if (msg.includes("(auth/invalid-credential)"))
         msg = "Email hoặc mật khẩu không chính xác";
       if (msg.includes("(auth/network-request-failed)"))
@@ -81,7 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return { success: true };
     } catch (error: any) {
       let msg = error.message;
-      // console.log('register msg: ', msg);
       if (msg.includes("(auth/email-already-in-use)")) msg = "Email đã tồn tại";
       if (msg.includes("(auth/network-request-failed)"))
         msg = "Mạng không ổn định";
@@ -89,7 +72,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // It get or set user data from firestore?
+  const forgotPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return { success: true };
+    } catch (error: any) {
+      let msg = error.message;
+      if (msg.includes("(auth/network-request-failed)"))
+        msg = "Mạng không ổn định";
+      if (msg.includes("(auth/invalid-email)")) msg = "Email không hợp lệ";
+      return { success: false, msg };
+    }
+  };
+
   const updateUserData = async (uid: string) => {
     try {
       const docRef = doc(firestore, "users", uid);
@@ -106,28 +101,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (error: any) {
       let msg = error.message;
-      // return {success: false, msg};
       console.log("updateUserData error: ", error);
     }
   };
 
-  // What is contextValue?
   const contextValue: AuthContextType = {
     user,
     setUser,
     login,
     register,
     updateUserData,
+    forgotPassword,
   };
 
   return (
-    // React native call function as component?
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
 export const useAuth = (): AuthContextType => {
-  // Why AuthContext not defined with provider but we can use it here?
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be wrapped inside AuthProvider");

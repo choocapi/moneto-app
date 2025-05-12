@@ -1,10 +1,9 @@
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import React from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { verticalScale } from "@/utils/styling";
 import Header from "@/components/Header";
-import BackButton from "@/components/BackButton";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/contexts/authContext";
 import { Image } from "expo-image";
@@ -79,11 +78,7 @@ const Profile = () => {
   return (
     <ScreenWrapper>
       <View style={styles.container}>
-        <Header
-          title="Trang cá nhân"
-          leftIcon={<BackButton />}
-          style={{ marginVertical: spacingY._10 }}
-        />
+        <Header title="Tài khoản" style={{ marginVertical: spacingY._10 }} />
 
         {/* user info */}
         <View style={styles.userInfo}>

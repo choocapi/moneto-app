@@ -9,6 +9,7 @@ import { Image } from "expo-image";
 import * as Icons from "phosphor-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { encodeImageUrl } from "@/services/imageService";
+import { formatCurrency } from "@/utils/common";
 
 const WalletListItem = ({
   item,
@@ -48,7 +49,7 @@ const WalletListItem = ({
         <View style={styles.nameContainer}>
           <Typo size={16}>{item?.name}</Typo>
           <Typo size={14} color={colors.neutral400}>
-            {item?.amount} VNĐ
+            {formatCurrency(item?.amount || 0, "vi-VN", "VND")}
           </Typo>
         </View>
 

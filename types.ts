@@ -103,6 +103,7 @@ export interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle;
   inputStyle?: TextStyle;
   inputRef?: React.RefObject<TextInput>;
+  type?: "currency" | "normal" | "password";
   //   label?: string;
   //   error?: string;
 }
@@ -148,6 +149,9 @@ export type AuthContextType = {
     name: string
   ) => Promise<{ success: boolean; msg?: string }>;
   updateUserData: (userId: string) => Promise<void>;
+  forgotPassword: (
+    email: string
+  ) => Promise<{ success: boolean; msg?: string }>;
 };
 
 export type ResponseType = {

@@ -12,8 +12,6 @@ export default function CustomBottomTabs({
   descriptors,
   navigation,
 }: BottomTabBarProps) {
-  // const { colors } = useTheme();
-  // const { buildHref } = useLinkBuilder();
   const tabbarIcons: any = {
     index: (isFocused: boolean) => (
       <Icons.House
@@ -49,12 +47,6 @@ export default function CustomBottomTabs({
     <View style={styles.tabbar}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
-        // const label: any =
-        //   options.tabBarLabel !== undefined
-        //     ? options.tabBarLabel
-        //     : options.title !== undefined
-        //       ? options.title
-        //       : route.name;
 
         const isFocused = state.index === index;
 
@@ -79,7 +71,6 @@ export default function CustomBottomTabs({
 
         return (
           <TouchableOpacity
-            // href={buildHref(route.name, route.params)}
             key={route.name}
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}

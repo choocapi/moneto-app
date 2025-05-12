@@ -68,8 +68,8 @@ const Home = () => {
           <TransactionList
             data={recentTransactions}
             loading={transactionLoading}
-            emptyListMessage="Chưa có hoạt động nào được ghi nhận!"
-            title="Lịch sử giao dịch"
+            emptyListMessage="Chưa có ghi chép nào!"
+            title="Lịch sử thu chi"
           />
         </ScrollView>
 

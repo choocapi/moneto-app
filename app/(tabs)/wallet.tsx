@@ -12,6 +12,7 @@ import { orderBy, where } from "firebase/firestore";
 import { useAuth } from "@/contexts/authContext";
 import Loading from "@/components/Loading";
 import WalletListItem from "@/components/WalletListItem";
+import { formatCurrency } from "@/utils/common";
 
 const Wallet = () => {
   const router = useRouter();
@@ -39,19 +40,20 @@ const Wallet = () => {
         <View style={styles.balanceView}>
           <View style={{ alignItems: "center" }}>
             <Typo size={45} fontWeight={"500"}>
-              {getTotalBalance()?.toFixed(2)} VNĐ
+              {formatCurrency(getTotalBalance(), "vi-VN", "VND")}
             </Typo>
             <Typo size={16} color={colors.neutral300}>
               Tổng số dư
             </Typo>
           </View>
         </View>
+
         {/* wallets */}
         <View style={styles.wallets}>
           {/* header */}
           <View style={styles.flexRow}>
             <Typo size={20} fontWeight={"500"}>
-              Ví của tôi
+              Tài khoản
             </Typo>
             <TouchableOpacity
               onPress={() => router.push("/(modals)/walletModal")}
@@ -63,8 +65,7 @@ const Wallet = () => {
               />
             </TouchableOpacity>
           </View>
-
-          {/* todo: wallets list  */}
+          {/* wallets list  */}
           {loading && <Loading />}
           <FlatList
             data={wallets}

@@ -350,7 +350,7 @@ export const fetchMonthlyStats = async (uid: string): Promise<ResponseType> => {
       transactions.push(transaction);
 
       const transactionDate = (transaction.date as Timestamp).toDate();
-      const monthName = transactionDate.toLocaleString("default", {
+      const monthName = transactionDate.toLocaleString("en-US", {
         month: "short",
       });
       const shortYear = transactionDate.getFullYear().toString().slice(-2);

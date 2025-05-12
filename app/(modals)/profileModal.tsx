@@ -68,7 +68,7 @@ const ProfileModal = () => {
       updateUserData(user?.uid as string);
       router.back();
     } else {
-      Alert.alert("Thông báo", res.msg || "Cập nhật thất bại");
+      Alert.alert("Lỗi", res.msg || "Cập nhật thất bại");
     }
   };
 

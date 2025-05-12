@@ -21,7 +21,6 @@ import Button from "@/components/Button";
 import { useAuth } from "@/contexts/authContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import ImageUpload from "@/components/ImageUpload";
-import { deleteWallet } from "@/services/walletService";
 import { decodeImageUrl } from "@/services/imageService";
 import { Dropdown } from "react-native-element-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -32,6 +31,11 @@ import {
   createOrUpdateTransaction,
   deleteTransaction,
 } from "@/services/transactionService";
+import {
+  formatCurrency,
+  formatNumberInput,
+  getNumberInput,
+} from "@/utils/common";
 
 const TransactionModal = () => {
   const { user } = useAuth();
@@ -119,7 +123,7 @@ const TransactionModal = () => {
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Cảnh báo", res.msg);
+      Alert.alert("Lỗi", res.msg);
     }
   };
 
@@ -134,7 +138,7 @@ const TransactionModal = () => {
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Transaction", res.msg);
+      Alert.alert("Lỗi", res.msg);
     }
   };
 
@@ -157,7 +161,7 @@ const TransactionModal = () => {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title={oldTransaction?.id ? "Cập nhật giao dịch" : "Thêm giao dịch"}
+          title={oldTransaction?.id ? "Cập nhật bản ghi" : "Thêm bản ghi"}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -196,7 +200,7 @@ const TransactionModal = () => {
           {/* choose wallets */}
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200} size={16}>
-              Ví
+              Tài khoản
             </Typo>
             {/* dropdown */}
             <Dropdown
@@ -206,7 +210,11 @@ const TransactionModal = () => {
               selectedTextStyle={styles.dropdownSelectedItem}
               iconStyle={styles.dropdownIcon}
               data={wallets.map((wallet) => ({
-                label: `${wallet?.name} (${wallet.amount} VND)`,
+                label: `${wallet?.name} (${formatCurrency(
+                  wallet?.amount || 0,
+                  "vn-VN",
+                  "VND"
+                )})`,
                 value: wallet?.id,
               }))}
               maxHeight={300}
@@ -227,7 +235,7 @@ const TransactionModal = () => {
           {transaction.type == "expense" && (
             <View style={styles.inputContainer}>
               <Typo color={colors.neutral200} size={16}>
-                Loại chi tiêu
+                Hạng mục
               </Typo>
               {/* dropdown */}
               <Dropdown
@@ -302,13 +310,14 @@ const TransactionModal = () => {
               Số tiền
             </Typo>
             <Input
-              placeholder="Nhập số tiền (VND)"
+              placeholder="VD: 10.000, 100.000,..."
               keyboardType="numeric"
-              value={transaction.amount?.toString()}
+              type="currency"
+              value={formatNumberInput(transaction.amount.toString())}
               onChangeText={(value) =>
                 setTransaction({
                   ...transaction,
-                  amount: Number(value.replace(/[^0-9]/g, "")),
+                  amount: Number(getNumberInput(value)),
                 })
               }
             />
@@ -318,21 +327,21 @@ const TransactionModal = () => {
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
               <Typo color={colors.neutral200} size={16}>
-                Mô tả
+                Diễn giải
               </Typo>
               <Typo color={colors.neutral500} size={14}>
                 (optional)
               </Typo>
             </View>
             <Input
-              placeholder="Nhập mô tả"
+              placeholder="VD: Mua đồ ăn sáng, đi taxi, đi chợ..."
               value={transaction.description}
               multiline
               containerStyle={{
                 flexDirection: "row",
                 height: verticalScale(100),
                 alignItems: "flex-start",
-                paddingVertical: 15,
+                paddingVertical: 10,
               }}
               onChangeText={(value) =>
                 setTransaction({
@@ -380,9 +389,18 @@ const TransactionModal = () => {
             />
           </Button>
         )}
-        <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
+        <Button
+          onPress={onSubmit}
+          loading={loading}
+          style={styles.buttonContainer}
+        >
+          <Icons.FloppyDisk
+            color={colors.black}
+            size={verticalScale(24)}
+            weight="bold"
+          />
           <Typo color={colors.black} fontWeight={"700"}>
-            {oldTransaction?.id ? "Cập nhật" : "Thêm"}
+            Lưu
           </Typo>
         </Button>
       </View>
@@ -506,5 +524,10 @@ const styles = StyleSheet.create({
   dropdownIcon: {
     height: verticalScale(30),
     tintColor: colors.neutral300,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: "row",
+    gap: spacingX._5,
   },
 });

@@ -67,3 +67,23 @@ export const getYearsRange = (startYear: number, endYear: number): any => {
   // return result;
   return result.reverse();
 };
+
+export const formatCurrency = (
+  amount: number,
+  locale: string,
+  currency: string
+) => {
+  return amount.toLocaleString(locale, {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 0,
+  });
+};
+
+export const formatNumberInput = (value: string) => {
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+export const getNumberInput = (value: string) => {
+  return value.replace(/[^0-9]/g, "");
+};

@@ -12,7 +12,6 @@ import {
   PopulationPyramid,
   RadarChart,
 } from "react-native-gifted-charts";
-import Typo from "@/components/Typo";
 import Loading from "@/components/Loading";
 import { useAuth } from "@/contexts/authContext";
 import {
@@ -40,6 +39,23 @@ const Statistics = () => {
       getYearlyStats();
     }
   }, [activeIndex]);
+
+  const checkCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return Math.floor(value / 1000000);
+    }
+    if (value >= 1000) {
+      return Math.floor(value / 1000);
+    }
+    return value.toString();
+  };
+
+  const getCurrencySuffix = (value: number) => {
+    if (value >= 1000000000) return "t";
+    if (value >= 1000000) return "tr";
+    if (value >= 1000) return "k";
+    return "";
+  };
 
   const getWeeklyStats = async () => {
     setChartLoading(true);
@@ -79,7 +95,7 @@ const Statistics = () => {
     <ScreenWrapper>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Header title="Thống kê" />
+          <Header title="Tình hình thu chi" />
         </View>
 
         <ScrollView
@@ -113,7 +129,6 @@ const Statistics = () => {
                 roundedTop
                 roundedBottom
                 hideRules
-                yAxisLabelPrefix="₫"
                 yAxisThickness={0}
                 xAxisThickness={0}
                 yAxisLabelWidth={
@@ -127,9 +142,14 @@ const Statistics = () => {
                 }}
                 noOfSections={3}
                 minHeight={5}
-                // isAnimated={true}
-                // animationDuration={1000}
+                isAnimated={true}
+                animationDuration={1000}
                 // maxValue={1000}
+                // yAxisLabelSuffix="k"
+                formatYLabel={(label) => {
+                  const value = Number(label);
+                  return `${checkCurrency(value)}${getCurrencySuffix(value)}`;
+                }}
               />
             ) : (
               <View style={styles.noChart} />
@@ -145,8 +165,8 @@ const Statistics = () => {
           {/* transaction */}
           <View>
             <TransactionList
-              title="Lịch sử ghi"
-              emptyListMessage="Không tìm thấy lịch sử ghi"
+              title="Lịch sử thu chi"
+              emptyListMessage="Chưa có ghi chép nào!"
               data={transactions}
             />
           </View>

@@ -13,7 +13,6 @@ const Welcome = () => {
   return (
     <ScreenWrapper>
       <View style={styles.container}>
-        {/* Login button and image */}
         <View>
           <TouchableOpacity
             style={styles.loginButton}
@@ -29,7 +28,6 @@ const Welcome = () => {
           />
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Animated.View
             entering={FadeInDown.duration(1000).springify().damping(12)}
