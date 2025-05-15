@@ -47,7 +47,6 @@ export const createOrUpdateTransaction = async (
         if (!res.success) return res;
       }
     } else {
-      // todo: update wallet for new transaction
       let res = await updateWalletForNewTransaction(
         walletId!,
         Number(amount!),
@@ -182,7 +181,7 @@ const revertAndUpdateWallets = async (
     // revert completed
     ////////////////////////////////////////////////////////////////
 
-    // refetch the newwallet because we may hae just updated it
+    // refetch the newwallet because we may have just updated it
     newWalletSnapshot = await getDoc(doc(firestore, "wallets", newWalletId));
     newWallet = newWalletSnapshot.data() as WalletType;
 

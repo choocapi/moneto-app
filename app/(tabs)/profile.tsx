@@ -10,13 +10,11 @@ import { Image } from "expo-image";
 import { getProfileImage } from "@/services/imageService";
 import * as Icons from "phosphor-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { signOut } from "firebase/auth";
-import { auth } from "@/config/firebase";
 import { useRouter } from "expo-router";
 import { accountOptionType } from "@/types";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
 
   const accountOptions: accountOptionType[] = [
@@ -47,7 +45,7 @@ const Profile = () => {
   ];
 
   const handleLogout = async () => {
-    await signOut(auth);
+    await logout();
   };
 
   const showLogoutAlert = () => {

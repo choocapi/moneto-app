@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/authContext";
 
 const Register = () => {
   const router = useRouter();
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, googleSignIn } = useAuth();
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -27,6 +27,13 @@ const Register = () => {
     setLoading(true);
     const res = await registerUser(email, password, name);
     setLoading(false);
+    if (!res.success) {
+      Alert.alert("Lỗi", res.msg);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const res = await googleSignIn();
     if (!res.success) {
       Alert.alert("Lỗi", res.msg);
     }
@@ -108,7 +115,7 @@ const Register = () => {
           <View style={styles.dividerLine} />
         </View>
         <View style={styles.socialButtonContainer}>
-          <Pressable>
+          <Pressable onPress={handleGoogleSignIn}>
             <Image
               source={require("@/assets/images/google.png")}
               style={styles.socialButton}

@@ -152,6 +152,10 @@ export type AuthContextType = {
   forgotPassword: (
     email: string
   ) => Promise<{ success: boolean; msg?: string }>;
+  googleSignIn: () => Promise<{ success: boolean; msg?: string }>;
+  isGoogleSignIn: boolean;
+  setIsGoogleSignIn: React.Dispatch<React.SetStateAction<boolean>>;
+  logout: () => Promise<{ success: boolean; msg?: string }>;
 };
 
 export type ResponseType = {

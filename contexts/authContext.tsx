@@ -9,15 +9,49 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { AuthContextType, UserType } from "@/types";
+import {
+  GoogleSignin,
+  isSuccessResponse,
+  isErrorWithCode,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserType>(null);
+  const [isGoogleSignIn, setIsGoogleSignIn] = useState(false);
+  const [initializing, setInitializing] = useState(true);
   const router = useRouter();
 
-  // Check user when app is loaded
+  // Configure Google Sign In
+  useEffect(() => {
+    GoogleSignin.configure({
+      iosClientId:
+        "906828090995-89e73aerau29ascb11gvpb14lmeshv8r.apps.googleusercontent.com",
+      webClientId:
+        "906828090995-59u6phvne9n0kunghv5ioqpg6uqgkjvg.apps.googleusercontent.com",
+      profileImageSize: 150,
+    });
+  });
+
+  // Handle navigation based on authentication state
+  useEffect(() => {
+    if (initializing) return;
+
+    const navigateBasedOnAuth = async () => {
+      if (user) {
+        router.replace("/(tabs)");
+      } else {
+        router.replace("/(auth)/welcome");
+      }
+    };
+
+    navigateBasedOnAuth();
+  }, [initializing, user]);
+
+  // Handle normal sign in status change
   useEffect(() => {
     const unsubcribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
@@ -27,10 +61,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           name: firebaseUser?.displayName,
         });
         updateUserData(firebaseUser?.uid);
-        router.replace("/(tabs)");
-      } else {
+      } else if (!isGoogleSignIn) {
         setUser(null);
-        router.replace("/(auth)/welcome");
+      }
+
+      if (initializing) {
+        setInitializing(false);
       }
     });
     return () => unsubcribe();
@@ -105,6 +141,85 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const googleSignIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      if (isSuccessResponse(response)) {
+        const { idToken, user: googleUser } = response.data;
+        setIsGoogleSignIn(true);
+
+        const userDocRef = doc(firestore, "users", googleUser.id);
+        const userDoc = await getDoc(userDocRef);
+
+        const userData: UserType = !userDoc.exists()
+          ? {
+              uid: googleUser.id,
+              email: googleUser.email,
+              name: googleUser.name,
+              image: googleUser.photo,
+            }
+          : {
+              uid: userDoc.data()?.uid,
+              email: userDoc.data()?.email,
+              name: userDoc.data()?.name,
+              image: userDoc.data()?.image,
+            };
+
+        if (!userDoc.exists()) {
+          await setDoc(userDocRef, userData);
+        }
+
+        setUser(userData);
+
+        return { success: true };
+      } else {
+        return { success: false };
+      }
+    } catch (error: any) {
+      if (isErrorWithCode(error)) {
+        switch (error.code) {
+          case statusCodes.SIGN_IN_CANCELLED:
+            return { success: false, msg: "Đăng nhập bị hủy bỏ" };
+          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+            return { success: false, msg: "Play services không khả dụng" };
+          case statusCodes.IN_PROGRESS:
+            return { success: false, msg: "Đăng nhập đang tiến hành" };
+          default:
+            return { success: false, msg: error.message + " - " + error.code };
+        }
+      } else {
+        return {
+          success: false,
+          msg: "Lỗi không xác định (nằm ngoài phạm vi Google Sign In)",
+        };
+      }
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setUser(null);
+
+      if (isGoogleSignIn) {
+        try {
+          await GoogleSignin.signOut();
+        } catch (error) {
+          console.error("Error signing out from Google:", error);
+        } finally {
+          setIsGoogleSignIn(false);
+        }
+      }
+
+      await auth.signOut();
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Logout error:", error);
+      return { success: false, msg: error.message };
+    }
+  };
+
   const contextValue: AuthContextType = {
     user,
     setUser,
@@ -112,6 +227,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     register,
     updateUserData,
     forgotPassword,
+    googleSignIn,
+    isGoogleSignIn,
+    setIsGoogleSignIn,
+    logout,
   };
 
   return (

@@ -9,9 +9,10 @@ import * as Icons from "phosphor-react-native";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/authContext";
+
 const Login = () => {
   const router = useRouter();
-  const { login: loginUser } = useAuth();
+  const { login: loginUser, googleSignIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,13 @@ const Login = () => {
     setLoading(true);
     const res = await loginUser(email, password);
     setLoading(false);
+    if (!res.success) {
+      Alert.alert("Lỗi", res.msg);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const res = await googleSignIn();
     if (!res.success) {
       Alert.alert("Lỗi", res.msg);
     }
@@ -97,7 +105,7 @@ const Login = () => {
           <View style={styles.dividerLine} />
         </View>
         <View style={styles.socialButtonContainer}>
-          <Pressable>
+          <Pressable onPress={handleGoogleSignIn}>
             <Image
               source={require("@/assets/images/google.png")}
               style={styles.socialButton}
