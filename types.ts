@@ -19,7 +19,8 @@ export type ModalWrapperProps = {
   children: React.ReactNode;
   bg?: string;
 };
-export type accountOptionType = {
+
+export type optionType = {
   title: string;
   icon: React.ReactNode;
   bgColor: string;
@@ -156,6 +157,10 @@ export type AuthContextType = {
   isGoogleSignIn: boolean;
   setIsGoogleSignIn: React.Dispatch<React.SetStateAction<boolean>>;
   logout: () => Promise<{ success: boolean; msg?: string }>;
+  updatePassword: (
+    oldPassword: string,
+    newPassword: string
+  ) => Promise<{ success: boolean; msg?: string }>;
 };
 
 export type ResponseType = {

@@ -27,8 +27,8 @@ export default function CustomBottomTabs({
         color={isFocused ? colors.primary : colors.neutral400}
       />
     ),
-    profile: (isFocused: boolean) => (
-      <Icons.User
+    more: (isFocused: boolean) => (
+      <Icons.SquaresFour
         size={verticalScale(30)}
         weight={isFocused ? "fill" : "regular"}
         color={isFocused ? colors.primary : colors.neutral400}

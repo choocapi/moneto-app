@@ -9,7 +9,7 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCxIG-Wnbc3jJCB_NMAxBpV6tiZIdS1XE0",
+  apiKey: "AIzaSyCgQpgtRmm0GLguhzAvw-0Slt8QkxrlZVk",
   authDomain: "moneto-5ac67.firebaseapp.com",
   projectId: "moneto-5ac67",
   storageBucket: "moneto-5ac67.firebasestorage.app",

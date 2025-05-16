@@ -13,6 +13,20 @@ const StackLayout = () => {
         }}
       />
       <Stack.Screen
+        name="(modals)/editProfileModal"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+        }}
+      />
+      <Stack.Screen
+        name="(modals)/changePasswordModal"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+        }}
+      />
+      <Stack.Screen
         name="(modals)/walletModal"
         options={{
           presentation: "transparentModal",

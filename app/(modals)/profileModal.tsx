@@ -1,125 +1,146 @@
-import {
-  Alert,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useEffect, useState } from "react";
-import { colors, spacingX, spacingY } from "@/constants/theme";
-import { scale, verticalScale } from "@/utils/styling";
-import ModalWrapper from "@/components/ModalWrapper";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import React from "react";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { verticalScale } from "@/utils/styling";
 import Header from "@/components/Header";
-import BackButton from "@/components/BackButton";
+import Typo from "@/components/Typo";
+import { useAuth } from "@/contexts/authContext";
 import { Image } from "expo-image";
 import { getProfileImage } from "@/services/imageService";
 import * as Icons from "phosphor-react-native";
-import Typo from "@/components/Typo";
-import Input from "@/components/Input";
-import { UserDataType } from "@/types";
-import Button from "@/components/Button";
-import { useAuth } from "@/contexts/authContext";
-import { updateUser } from "@/services/userService";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { optionType } from "@/types";
+import BackButton from "@/components/BackButton";
 
 const ProfileModal = () => {
-  const { user, updateUserData } = useAuth();
+  const { user, logout, isGoogleSignIn } = useAuth();
   const router = useRouter();
-  const [userData, setUserData] = useState<UserDataType>({
-    name: "",
-    image: null,
-  });
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setUserData({
-      name: user?.name || "",
-      image: user?.image || null,
-    });
-  }, [user]);
+  const accountOptions: optionType[] = [
+    {
+      title: "Cập nhật hồ sơ",
+      icon: <Icons.User size={26} color={colors.white} weight="fill" />,
+      routeName: "/(modals)/editProfileModal",
+      bgColor: "#6366f1",
+    },
+    {
+      title: "Đổi mật khẩu",
+      icon: <Icons.Lock size={26} color={colors.white} weight="fill" />,
+      routeName: "/(modals)/changePasswordModal",
+      bgColor: "#f59e0b",
+    },
+    {
+      title: "Đăng xuất",
+      icon: <Icons.Power size={26} color={colors.white} weight="fill" />,
+      // routeName: "",
+      bgColor: "#e11d48",
+    },
+  ];
 
-  const handleImagePicker = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      // allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.5,
-    });
-
-    if (!result.canceled) {
-      setUserData({ ...userData, image: result.assets[0] });
-    }
+  const handleLogout = async () => {
+    await logout();
   };
 
-  const handleSubmit = async () => {
-    let { name, image } = userData;
-    if (!name.trim()) {
-      Alert.alert("Cảnh báo", "Vui lòng nhập tên của bạn");
-      return;
+  const showLogoutAlert = () => {
+    Alert.alert("Xác nhận", "Bạn chắc chắn muốn đăng xuất?", [
+      {
+        text: "Hủy",
+        style: "cancel",
+        onPress: () => {
+          // console.log("cancel logout")
+        },
+      },
+      {
+        text: "Đăng xuất",
+        style: "destructive",
+        onPress: () => handleLogout(),
+      },
+    ]);
+  };
+
+  const handlePress = (item: optionType) => {
+    if (item.title == "Đăng xuất") {
+      showLogoutAlert();
     }
 
-    setLoading(true);
-    const res = await updateUser(user?.uid as string, userData);
-    setLoading(false);
-    if (res.success) {
-      updateUserData(user?.uid as string);
-      router.back();
-      router.replace("/(tabs)");
-    } else {
-      Alert.alert("Lỗi", res.msg || "Cập nhật thất bại");
-    }
+    if (item.routeName) router.push(item.routeName);
   };
 
   return (
-    <ModalWrapper>
+    <ScreenWrapper>
       <View style={styles.container}>
         <Header
-          title="Cập nhật hồ sơ"
+          title={"Tài khoản"}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
-        {/* form */}
-        <ScrollView contentContainerStyle={styles.form}>
-          <View style={styles.avatarContainer}>
+
+        {/* user info */}
+        <View style={styles.userInfo}>
+          {/* avatar */}
+          <View>
             <Image
+              source={getProfileImage(user?.image)}
               style={styles.avatar}
-              source={getProfileImage(userData.image)}
               contentFit="cover"
               transition={100}
             />
-            <TouchableOpacity
-              onPress={handleImagePicker}
-              style={styles.editIcon}
-            >
-              <Icons.Pencil
-                size={verticalScale(20)}
-                color={colors.neutral800}
-              />
-            </TouchableOpacity>
           </View>
-          <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200}>Name</Typo>
-            <Input
-              placeholder="Nhập tên của bạn"
-              value={userData.name}
-              onChangeText={(value) =>
-                setUserData({ ...userData, name: value })
-              }
-            />
+
+          {/* name & email */}
+          <View style={styles.nameContainer}>
+            <Typo size={24} fontWeight={"600"} color={colors.neutral100}>
+              {user?.name}
+            </Typo>
+            <Typo size={15} color={colors.neutral400}>
+              {user?.email}
+            </Typo>
           </View>
-        </ScrollView>
+        </View>
+
+        {/* account options */}
+        <View style={styles.accountOptions}>
+          {accountOptions
+            .filter((item) => !isGoogleSignIn || item.title !== "Đổi mật khẩu")
+            .map((item, index) => {
+              return (
+                <Animated.View
+                  key={index.toString()}
+                  entering={FadeInDown.delay(index * 50)
+                    .springify()
+                    .damping(14)}
+                  style={styles.listItem}
+                >
+                  <TouchableOpacity
+                    onPress={() => handlePress(item)}
+                    style={styles.flexRow}
+                  >
+                    {/* icon */}
+                    <View
+                      style={[
+                        styles.listIcon,
+                        { backgroundColor: item?.bgColor },
+                      ]}
+                    >
+                      {item.icon && item.icon}
+                    </View>
+                    <Typo size={16} style={{ flex: 1 }} fontWeight={"500"}>
+                      {item.title}
+                    </Typo>
+                    <Icons.CaretRight
+                      size={verticalScale(20)}
+                      weight="bold"
+                      color={colors.white}
+                    />
+                  </TouchableOpacity>
+                </Animated.View>
+              );
+            })}
+        </View>
       </View>
-      <View style={styles.footer}>
-        <Button onPress={handleSubmit} loading={loading} style={{ flex: 1 }}>
-          <Typo color={colors.black} fontWeight={"700"}>
-            Cập nhật
-          </Typo>
-        </Button>
-      </View>
-    </ModalWrapper>
+    </ScreenWrapper>
   );
 };
 
@@ -128,51 +149,59 @@ export default ProfileModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-between",
-    paddingHorizontal: spacingY._20,
-  },
-  footer: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
     paddingHorizontal: spacingX._20,
-    gap: scale(12),
-    paddingTop: spacingY._15,
-    borderTopColor: colors.neutral700,
-    marginBottom: spacingY._5,
-    borderTopWidth: 1,
   },
-  form: {
-    gap: spacingY._30,
-    marginTop: spacingY._15,
+  userInfo: {
+    marginTop: verticalScale(30),
+    alignItems: "center",
+    gap: spacingY._15,
   },
   avatarContainer: {
     position: "relative",
     alignSelf: "center",
   },
   avatar: {
-    alignSelf: "center",
-    backgroundColor: colors.neutral300,
     height: verticalScale(135),
     width: verticalScale(135),
     borderRadius: 200,
-    borderWidth: 1,
-    borderColor: colors.neutral500,
+    alignSelf: "center",
+    backgroundColor: colors.neutral300,
   },
   editIcon: {
     position: "absolute",
-    bottom: spacingY._5,
-    right: spacingY._7,
-    borderRadius: 100,
+    bottom: 5,
+    right: 8,
+    borderRadius: 50,
     backgroundColor: colors.neutral100,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 4,
-    padding: spacingY._7,
+    padding: 5,
   },
-  inputContainer: {
-    gap: spacingY._10,
+  nameContainer: {
+    gap: verticalScale(4),
+    alignItems: "center",
+  },
+  listIcon: {
+    height: verticalScale(44),
+    width: verticalScale(44),
+    backgroundColor: colors.neutral500,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius._15,
+    borderCurve: "continuous",
+  },
+  listItem: {
+    marginBottom: verticalScale(17),
+  },
+  accountOptions: {
+    marginTop: spacingY._35,
+  },
+  flexRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX._10,
   },
 });

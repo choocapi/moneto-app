@@ -4,6 +4,9 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword as firebaseUpdatePassword,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -220,6 +223,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updatePassword = async (
+    oldPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; msg?: string }> => {
+    try {
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        return { success: false, msg: "Không tìm thấy người dùng" };
+      }
+
+      const credential = EmailAuthProvider.credential(user.email, oldPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      await firebaseUpdatePassword(user, newPassword);
+
+      return { success: true, msg: "Cập nhật mật khẩu thành công" };
+    } catch (error: any) {
+      console.log("error updating password: ", error);
+      let msg = error.message;
+      if (msg.includes("(auth/invalid-credential)")) {
+        msg = "Mật khẩu cũ không chính xác";
+      }
+      return { success: false, msg };
+    }
+  };
+
   const contextValue: AuthContextType = {
     user,
     setUser,
@@ -231,6 +260,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isGoogleSignIn,
     setIsGoogleSignIn,
     logout,
+    updatePassword,
   };
 
   return (
