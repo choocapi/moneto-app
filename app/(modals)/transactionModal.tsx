@@ -223,7 +223,7 @@ const TransactionModal = () => {
               itemTextStyle={styles.dropdownItemText}
               itemContainerStyle={styles.dropdownItemContainer}
               containerStyle={styles.dropdownListContainer}
-              placeholder={"Chọn ví"}
+              placeholder={"Chọn tài khoản"}
               value={transaction.walletId}
               onChange={(item) => {
                 setTransaction({ ...transaction, walletId: item.value || "" });

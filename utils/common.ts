@@ -71,12 +71,14 @@ export const getYearsRange = (startYear: number, endYear: number): any => {
 export const formatCurrency = (
   amount: number,
   locale: string,
-  currency: string
+  currency: string,
+  maximumFractionDigits: number = 0
 ) => {
   return amount.toLocaleString(locale, {
     style: "currency",
     currency: currency,
     minimumFractionDigits: 0,
+    maximumFractionDigits: maximumFractionDigits,
   });
 };
 

@@ -15,11 +15,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import ImageUpload from "@/components/ImageUpload";
 import { createOrUpdateWallet, deleteWallet } from "@/services/walletService";
 import { decodeImageUrl } from "@/services/imageService";
-import {
-  formatCurrency,
-  formatNumberInput,
-  getNumberInput,
-} from "@/utils/common";
+import { formatNumberInput, getNumberInput } from "@/utils/common";
 
 const WalletModal = () => {
   const { user, updateUserData } = useAuth();

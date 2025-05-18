@@ -20,11 +20,15 @@ export type ModalWrapperProps = {
   bg?: string;
 };
 
-export type optionType = {
+export type OptionType = {
   title: string;
   icon: React.ReactNode;
   bgColor: string;
-  routeName?: any;
+  routeName?: string;
+  type?: "switch" | "arrow" | "text";
+  value?: boolean | string;
+  onPress?: () => void;
+  onChange?: (value: boolean) => void;
 };
 
 export type TypoProps = {
@@ -82,6 +86,7 @@ export type CategoryType = {
   icon: Icon;
   bgColor: string;
 };
+
 export type ExpenseCategoriesType = {
   [key: string]: CategoryType;
 };
@@ -97,6 +102,33 @@ export type TransactionItemProps = {
   item: TransactionType;
   index: number;
   handleClick: Function;
+};
+
+export type ShoppingListType = {
+  data: ShoppingType[];
+  loading?: boolean;
+  emptyListMessage?: string;
+  title: string;
+  total: number;
+  isExpanded: boolean;
+};
+
+export type ShoppingItemProps = {
+  item: ShoppingType;
+  index: number;
+  handleClick: Function;
+};
+
+export type ShoppingType = {
+  id?: string;
+  name: string;
+  price: number;
+  description: string;
+  quantity: number;
+  uid?: string;
+  bought: boolean;
+  isUrgent: boolean;
+  created?: Date;
 };
 
 export interface InputProps extends TextInputProps {
@@ -178,4 +210,22 @@ export type WalletType = {
   image: any;
   uid?: string;
   created?: Date;
+};
+
+export type CurrencyApiResponse = {
+  meta: {
+    last_updated_at: string;
+  };
+  data: {
+    [key: string]: {
+      code: string;
+      value: number;
+    };
+  };
+};
+
+export type CurrencyType = {
+  code: string;
+  value: number;
+  name?: string;
 };

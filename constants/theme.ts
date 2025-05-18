@@ -1,5 +1,6 @@
 import { scale, verticalScale } from "@/utils/styling";
 
+// Dark color
 export const colors = {
   primary: "#a3e635",
   primaryLight: "#0ea5e9",

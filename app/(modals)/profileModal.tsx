@@ -1,6 +1,6 @@
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import React from "react";
-import ScreenWrapper from "@/components/ScreenWrapper";
+import ModalWrapper from "@/components/ModalWrapper";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { verticalScale } from "@/utils/styling";
 import Header from "@/components/Header";
@@ -11,14 +11,14 @@ import { getProfileImage } from "@/services/imageService";
 import * as Icons from "phosphor-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
-import { optionType } from "@/types";
+import { OptionType } from "@/types";
 import BackButton from "@/components/BackButton";
 
 const ProfileModal = () => {
   const { user, logout, isGoogleSignIn } = useAuth();
   const router = useRouter();
 
-  const accountOptions: optionType[] = [
+  const accountOptions: OptionType[] = [
     {
       title: "Cập nhật hồ sơ",
       icon: <Icons.User size={26} color={colors.white} weight="fill" />,
@@ -60,16 +60,16 @@ const ProfileModal = () => {
     ]);
   };
 
-  const handlePress = (item: optionType) => {
+  const handlePress = (item: OptionType) => {
     if (item.title == "Đăng xuất") {
       showLogoutAlert();
     }
 
-    if (item.routeName) router.push(item.routeName);
+    if (item.routeName) router.push(item?.routeName as any);
   };
 
   return (
-    <ScreenWrapper>
+    <ModalWrapper>
       <View style={styles.container}>
         <Header
           title={"Tài khoản"}
@@ -101,7 +101,7 @@ const ProfileModal = () => {
         </View>
 
         {/* account options */}
-        <View style={styles.accountOptions}>
+        <View style={styles.cardContainer}>
           {accountOptions
             .filter((item) => !isGoogleSignIn || item.title !== "Đổi mật khẩu")
             .map((item, index) => {
@@ -111,11 +111,11 @@ const ProfileModal = () => {
                   entering={FadeInDown.delay(index * 50)
                     .springify()
                     .damping(14)}
-                  style={styles.listItem}
                 >
+                  {index > 0 && <View style={styles.divider} />}
                   <TouchableOpacity
                     onPress={() => handlePress(item)}
-                    style={styles.flexRow}
+                    style={styles.settingItem}
                   >
                     {/* icon */}
                     <View
@@ -126,7 +126,7 @@ const ProfileModal = () => {
                     >
                       {item.icon && item.icon}
                     </View>
-                    <Typo size={16} style={{ flex: 1 }} fontWeight={"500"}>
+                    <Typo size={16} style={{ flex: 1 }} fontWeight="500">
                       {item.title}
                     </Typo>
                     <Icons.CaretRight
@@ -140,7 +140,7 @@ const ProfileModal = () => {
             })}
         </View>
       </View>
-    </ScreenWrapper>
+    </ModalWrapper>
   );
 };
 
@@ -184,24 +184,27 @@ const styles = StyleSheet.create({
     gap: verticalScale(4),
     alignItems: "center",
   },
+  cardContainer: {
+    backgroundColor: colors.neutral800,
+    borderRadius: radius._15,
+    marginTop: spacingY._35,
+  },
+  settingItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX._10,
+    paddingVertical: spacingY._12,
+  },
   listIcon: {
     height: verticalScale(44),
     width: verticalScale(44),
-    backgroundColor: colors.neutral500,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radius._15,
     borderCurve: "continuous",
   },
-  listItem: {
-    marginBottom: verticalScale(17),
-  },
-  accountOptions: {
-    marginTop: spacingY._35,
-  },
-  flexRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacingX._10,
+  divider: {
+    height: 1,
+    backgroundColor: colors.neutral700,
   },
 });

@@ -10,30 +10,32 @@ import { getProfileImage } from "@/services/imageService";
 import * as Icons from "phosphor-react-native";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 import { useRouter } from "expo-router";
-import { optionType } from "@/types";
+import { OptionType } from "@/types";
 
-const features: optionType[] = [
+const features: OptionType[] = [
   {
     title: "Danh sách mua sắm",
     icon: <Icons.ShoppingBag size={26} color={colors.white} weight="fill" />,
     bgColor: "#8b5cf6",
-    // routeName: "/(modals)/shoppingListModal",
+    routeName: "/(modals)/shoppingListModal",
   },
   {
     title: "Hạng mục thu/chi",
     icon: <Icons.Folders size={26} color={colors.white} weight="fill" />,
     bgColor: "#ec4899",
     // routeName: "/(modals)/categoryTransactionModal",
+    routeName: "commingsoon",
   },
   {
     title: "Xuất dữ liệu",
     icon: <Icons.FileArrowUp size={26} color={colors.white} weight="fill" />,
     bgColor: "#0ea5e9",
     // routeName: "/(modals)/exportDataModal",
+    routeName: "commingsoon",
   },
 ];
 
-const utilities: optionType[] = [
+const utilities: OptionType[] = [
   {
     title: "Tra cứu tỷ giá",
     icon: (
@@ -44,33 +46,36 @@ const utilities: optionType[] = [
       />
     ),
     bgColor: "#f59e0b",
-    // routeName: "/(modals)/exchangeRateModal",
+    routeName: "/(modals)/exchangeRateModal",
   },
   {
     title: "Tính lãi vay",
     icon: <Icons.Percent size={26} color={colors.white} weight="fill" />,
     bgColor: "#10b981",
     // routeName: "/(modals)/loanCalculatorModal",
+    routeName: "commingsoon",
   },
   {
     title: "Chia tiền",
     icon: <Icons.UsersThree size={26} color={colors.white} weight="fill" />,
     bgColor: "#6366f1",
     // routeName: "/(modals)/splitBillModal",
+    routeName: "commingsoon",
   },
 ];
 
-const settings: optionType[] = [
+const settings: OptionType[] = [
   {
     title: "Cài đặt chung",
     icon: <Icons.GearSix size={26} color={colors.white} weight="fill" />,
-    // routeName: "/(modals)/settingsModal",
+    routeName: "/(modals)/settingsModal",
     bgColor: "#6366f1",
   },
   {
     title: "Cài đặt dữ liệu",
     icon: <Icons.HardDrives size={26} color={colors.white} weight="fill" />,
     // routeName: "/(modals)/dataSettingsModal",
+    routeName: "commingsoon",
     bgColor: colors.neutral600,
   },
 ];
@@ -79,8 +84,15 @@ const More = () => {
   const { user } = useAuth();
   const router = useRouter();
 
-  const handlePress = (item: optionType) => {
-    if (item.routeName) router.push(item.routeName);
+  const handlePress = (item: OptionType) => {
+    if (!item.routeName) return;
+
+    item?.routeName === "commingsoon"
+      ? Alert.alert(
+          "Thông báo",
+          "Chức năng đang phát triển. Hẹn bạn quay lại sau!"
+        )
+      : router.push(item?.routeName as any);
   };
 
   return (
@@ -216,6 +228,7 @@ const More = () => {
                   .springify()
                   .damping(14)}
               >
+                {index > 0 && <View style={styles.divider} />}
                 <TouchableOpacity
                   onPress={() => handlePress(item)}
                   style={styles.flexRow}
@@ -281,7 +294,7 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(10),
   },
   settingsSection: {
-    gap: verticalScale(18),
+    gap: 0,
   },
   listIcon: {
     height: verticalScale(44),
@@ -304,5 +317,10 @@ const styles = StyleSheet.create({
   textContainer: {
     width: verticalScale(80),
     alignItems: "center",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.neutral700,
+    marginVertical: verticalScale(9),
   },
 });

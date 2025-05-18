@@ -66,8 +66,6 @@ const EditProfileModal = () => {
     setLoading(false);
     if (res.success) {
       updateUserData(user?.uid as string);
-      router.back();
-      router.replace("/(tabs)");
     } else {
       Alert.alert("Lỗi", res.msg || "Cập nhật thất bại");
     }
