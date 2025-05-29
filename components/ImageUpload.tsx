@@ -25,7 +25,7 @@ const ImageUpload = ({
       quality: 0.5,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets[0]) {
       onSelect(result.assets[0]);
     }
   };

@@ -85,17 +85,25 @@ const TransactionModal = () => {
   };
 
   useEffect(() => {
+    const baseTransaction = {
+      type: oldTransaction?.type,
+      amount: Number(oldTransaction.amount),
+      description: oldTransaction.description || "",
+      date: new Date(oldTransaction.date),
+      image: oldTransaction?.image
+        ? decodeImageUrl(oldTransaction.image)
+        : null,
+      walletId: oldTransaction?.id ? oldTransaction.walletId : "",
+    };
+
     if (oldTransaction?.id) {
       setTransaction({
-        type: oldTransaction?.type,
-        amount: Number(oldTransaction.amount),
-        description: oldTransaction.description || "",
+        ...baseTransaction,
         category: oldTransaction.category || "",
-        date: new Date(oldTransaction.date),
-        walletId: oldTransaction.walletId,
         toWalletId: oldTransaction.toWalletId || "",
-        image: decodeImageUrl(oldTransaction?.image),
       });
+    } else {
+      setTransaction(baseTransaction);
     }
   }, []);
 

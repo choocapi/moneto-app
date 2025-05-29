@@ -13,10 +13,14 @@ import { useRouter } from "expo-router";
 import { limit, orderBy, where } from "firebase/firestore";
 import useFetchData from "@/hooks/useFetchData";
 import { TransactionType } from "@/types";
+import * as ImagePicker from "expo-image-picker";
+import { scanReceiptAndParse } from "@/services/imageService";
+import OverlayLoading from "@/components/OverlayLoading";
 
 const Home = () => {
   const { user } = useAuth();
   const router = useRouter();
+  const [isVisionLoading, setIsVisionLoading] = React.useState(false);
 
   const constraints = user?.uid
     ? [where("uid", "==", user.uid), orderBy("date", "desc"), limit(15)]
@@ -27,6 +31,41 @@ const Home = () => {
     error: transactionError,
     loading: transactionLoading,
   } = useFetchData<TransactionType>("transactions", constraints);
+
+  const handleScanReceipt = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        base64: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.canceled && result.assets && result.assets[0]) {
+        setIsVisionLoading(true);
+        const image = result.assets[0];
+        const scanRes = await scanReceiptAndParse(image);
+        setIsVisionLoading(false);
+        if (!scanRes.success) {
+          alert(scanRes.msg || "Không nhận diện được hóa đơn");
+          return;
+        }
+        const { amount, date, description, image: imageUrl } = scanRes.data;
+        router.push({
+          pathname: "/(modals)/transactionModal",
+          params: {
+            type: "expense",
+            amount: amount ? amount.toString() : "",
+            date: date || new Date().toISOString(),
+            description: description || "",
+            image: imageUrl,
+          },
+        });
+      }
+    } catch (e) {
+      setIsVisionLoading(false);
+      alert("Có lỗi khi scan hóa đơn");
+    }
+  };
 
   return (
     <ScreenWrapper>
@@ -83,6 +122,22 @@ const Home = () => {
             size={verticalScale(24)}
           />
         </Button>
+        {/* Nút scan hóa đơn */}
+        <Button
+          style={{
+            ...styles.floatingButton,
+            right: verticalScale(90),
+            backgroundColor: colors.primaryLight,
+          }}
+          onPress={handleScanReceipt}
+        >
+          <Icons.Camera
+            color={colors.black}
+            weight="bold"
+            size={verticalScale(24)}
+          />
+        </Button>
+        {isVisionLoading && <OverlayLoading text="Đang nhận diện hóa đơn..." />}
       </View>
     </ScreenWrapper>
   );
