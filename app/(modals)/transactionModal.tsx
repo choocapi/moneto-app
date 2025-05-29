@@ -50,6 +50,7 @@ const TransactionModal = () => {
     category: "",
     date: new Date(),
     walletId: "",
+    toWalletId: "",
     image: null,
   });
 
@@ -72,6 +73,7 @@ const TransactionModal = () => {
     image?: any;
     uid?: string;
     walletId: string;
+    toWalletId?: string;
   };
 
   const oldTransaction: paramType = useLocalSearchParams();
@@ -91,17 +93,33 @@ const TransactionModal = () => {
         category: oldTransaction.category || "",
         date: new Date(oldTransaction.date),
         walletId: oldTransaction.walletId,
+        toWalletId: oldTransaction.toWalletId || "",
         image: decodeImageUrl(oldTransaction?.image),
       });
     }
   }, []);
 
   const onSubmit = async () => {
-    const { type, amount, description, category, date, walletId, image } =
-      transaction;
+    const {
+      type,
+      amount,
+      description,
+      category,
+      date,
+      walletId,
+      image,
+      toWalletId,
+    } = transaction;
 
     if (!walletId || !date || !amount || (type == "expense" && !category)) {
       Alert.alert("Cảnh báo", "Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
+    if (type === "transfer" && (!toWalletId || toWalletId === walletId)) {
+      Alert.alert(
+        "Cảnh báo",
+        "Vui lòng chọn tài khoản nhận khác tài khoản nguồn"
+      );
       return;
     }
 
@@ -112,6 +130,7 @@ const TransactionModal = () => {
       category,
       date,
       walletId,
+      toWalletId,
       image: image ? image : null,
       uid: user?.uid,
     };
@@ -231,6 +250,46 @@ const TransactionModal = () => {
             />
           </View>
 
+          {/* transfer amount to other wallet */}
+          {transaction.type === "transfer" && (
+            <View style={styles.inputContainer}>
+              <Typo color={colors.neutral200} size={16}>
+                Chuyển khoản đến
+              </Typo>
+              <Dropdown
+                style={styles.dropdownContainer}
+                activeColor={colors.neutral700}
+                placeholderStyle={styles.dropdownPlaceholder}
+                selectedTextStyle={styles.dropdownSelectedItem}
+                iconStyle={styles.dropdownIcon}
+                data={wallets
+                  .filter((wallet) => wallet.id !== transaction.walletId)
+                  .map((wallet) => ({
+                    label: `${wallet?.name} (${formatCurrency(
+                      wallet?.amount || 0,
+                      "vn-VN",
+                      "VND"
+                    )})`,
+                    value: wallet?.id,
+                  }))}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                itemTextStyle={styles.dropdownItemText}
+                itemContainerStyle={styles.dropdownItemContainer}
+                containerStyle={styles.dropdownListContainer}
+                placeholder={"Chọn tài khoản nhận"}
+                value={transaction.toWalletId}
+                onChange={(item) => {
+                  setTransaction({
+                    ...transaction,
+                    toWalletId: item.value || "",
+                  });
+                }}
+              />
+            </View>
+          )}
+
           {/* expense categories */}
           {transaction.type == "expense" && (
             <View style={styles.inputContainer}>
@@ -273,7 +332,7 @@ const TransactionModal = () => {
                 style={styles.dateInput}
                 onPress={() => setShowDatePicker(true)}
               >
-                <Typo size={14}>
+                <Typo size={16}>
                   {(transaction.date as Date).toLocaleDateString()}
                 </Typo>
               </Pressable>
@@ -295,7 +354,7 @@ const TransactionModal = () => {
                     style={styles.datePickerButton}
                     onPress={() => setShowDatePicker(false)}
                   >
-                    <Typo size={15} fontWeight={"500"}>
+                    <Typo size={16} fontWeight={"500"}>
                       Ok
                     </Typo>
                   </TouchableOpacity>
@@ -330,7 +389,7 @@ const TransactionModal = () => {
                 Diễn giải
               </Typo>
               <Typo color={colors.neutral500} size={14}>
-                (optional)
+                (không bắt buộc)
               </Typo>
             </View>
             <Input
@@ -356,10 +415,10 @@ const TransactionModal = () => {
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
               <Typo color={colors.neutral200} size={16}>
-                Hóa đơn
+                Hình ảnh
               </Typo>
               <Typo color={colors.neutral500} size={14}>
-                (optional)
+                (không bắt buộc)
               </Typo>
             </View>
             <ImageUpload
@@ -499,7 +558,7 @@ const styles = StyleSheet.create({
   },
   dropdownSelectedItem: {
     color: colors.white,
-    fontSize: verticalScale(14),
+    fontSize: verticalScale(16),
   },
   dropdownListContainer: {
     backgroundColor: colors.neutral900,

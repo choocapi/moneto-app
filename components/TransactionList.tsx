@@ -10,7 +10,11 @@ import { verticalScale } from "@/utils/styling";
 import Typo from "./Typo";
 import { FlashList } from "@shopify/flash-list";
 import Loading from "./Loading";
-import { expenseCategories, incomeCategory } from "@/constants/data";
+import {
+  expenseCategories,
+  incomeCategory,
+  transferCategory,
+} from "@/constants/data";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Timestamp } from "firebase/firestore";
 import { useRouter } from "expo-router";
@@ -37,6 +41,7 @@ const TransactionList = ({
         image: encodeImageUrl(item?.image),
         uid: item?.uid,
         walletId: item?.walletId,
+        toWalletId: item?.toWalletId,
       },
     });
   };
@@ -85,8 +90,14 @@ const TransactionItem = ({
   index,
   handleClick,
 }: TransactionItemProps) => {
-  let category =
-    item?.type == "income" ? incomeCategory : expenseCategories[item.category!];
+  let category: any;
+  if (item?.type === "income") {
+    category = incomeCategory;
+  } else if (item?.type === "transfer") {
+    category = transferCategory;
+  } else {
+    category = expenseCategories[item.category!];
+  }
   const IconComponent = category.icon;
   const date = (item?.date as Timestamp)
     ?.toDate()
@@ -126,7 +137,13 @@ const TransactionItem = ({
         <View style={styles.amountDate}>
           <Typo
             fontWeight={"500"}
-            color={item?.type == "income" ? colors.primary : colors.rose}
+            color={
+              item?.type === "income"
+                ? colors.primary
+                : item?.type === "expense"
+                ? colors.rose
+                : colors.text
+            }
           >
             {`${formatCurrency(item?.amount || 0, "vi-VN", "VND")}`}
           </Typo>

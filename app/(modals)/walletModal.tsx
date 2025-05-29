@@ -134,12 +134,12 @@ const WalletModal = () => {
             />
           </View>
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200}>Biểu tượng</Typo>
+            <Typo color={colors.neutral200}>Hình ảnh</Typo>
             <ImageUpload
               file={wallet.image}
               onClear={() => setWallet({ ...wallet, image: null })}
               onSelect={(file) => setWallet({ ...wallet, image: file })}
-              placeholder="Chọn hình ảnh"
+              placeholder="Chọn ảnh"
             />
           </View>
         </ScrollView>

@@ -23,9 +23,14 @@ export const createOrUpdateTransaction = async (
   transactionData: Partial<TransactionType>
 ): Promise<ResponseType> => {
   try {
-    const { id, type, walletId, amount, image } = transactionData;
+    const { id, type, walletId, toWalletId, amount, image } = transactionData;
     if (!amount || amount <= 0 || !walletId || !type) {
       return { success: false, msg: "Giao dịch không hợp lệ!" };
+    }
+
+    // Xử lý chuyển khoản
+    if (type === "transfer") {
+      return await handleTransferTransaction(transactionData);
     }
 
     if (id) {
@@ -60,7 +65,7 @@ export const createOrUpdateTransaction = async (
       if (!imageUploadRes.success) {
         return {
           success: false,
-          msg: imageUploadRes.msg || "Tải lên hóa đơn thất bại",
+          msg: imageUploadRes.msg || "Tải lên hình ảnh thất bại",
         };
       }
       transactionData.image = imageUploadRes.data;
@@ -212,6 +217,30 @@ const revertAndUpdateWallets = async (
   }
 };
 
+// Revert amount for source and target wallets when updating/deleting transfer
+const revertTransferWallets = async (
+  oldSourceWalletId: string,
+  oldTargetWalletId: string | undefined,
+  amount: number
+) => {
+  // revert amount for source wallet
+  const oldSourceWalletRef = doc(firestore, "wallets", oldSourceWalletId);
+  const oldSourceWalletSnap = await getDoc(oldSourceWalletRef);
+  const oldSourceWallet = oldSourceWalletSnap.data() as WalletType;
+  await updateDoc(oldSourceWalletRef, {
+    amount: Number(oldSourceWallet.amount) + Number(amount),
+  });
+  // revert amount for target wallet
+  if (oldTargetWalletId) {
+    const oldTargetWalletRef = doc(firestore, "wallets", oldTargetWalletId);
+    const oldTargetWalletSnap = await getDoc(oldTargetWalletRef);
+    const oldTargetWallet = oldTargetWalletSnap.data() as WalletType;
+    await updateDoc(oldTargetWalletRef, {
+      amount: Number(oldTargetWallet.amount) - Number(amount),
+    });
+  }
+};
+
 export const deleteTransaction = async (
   transactionId: string,
   walletId: string
@@ -224,6 +253,17 @@ export const deleteTransaction = async (
       return { success: false, msg: "Giao dịch không tồn tại" };
     }
     const transactionData = transactionSnapshot.data() as TransactionType;
+
+    // Transfer amount to other wallet
+    if (transactionData.type === "transfer") {
+      await revertTransferWallets(
+        transactionData.walletId,
+        transactionData.toWalletId,
+        transactionData.amount
+      );
+      await deleteDoc(transactionRef);
+      return { success: true };
+    }
 
     const transactionType = transactionData?.type;
     const transactionAmount = transactionData?.amount;
@@ -453,4 +493,80 @@ export const fetchYearlyStats = async (uid: string): Promise<ResponseType> => {
     console.log("error fetching yearly stats: ", error);
     return { success: false, msg: error.message };
   }
+};
+
+const handleTransferTransaction = async (
+  transactionData: Partial<TransactionType>
+): Promise<ResponseType> => {
+  const { id, walletId, toWalletId, amount, image } = transactionData;
+  if (
+    !amount ||
+    amount <= 0 ||
+    !walletId ||
+    !toWalletId ||
+    toWalletId === walletId
+  ) {
+    return { success: false, msg: "Vui lòng chọn tài khoản nhận hợp lệ!" };
+  }
+  // Update transfer amount, revert the amount of the 2 old wallets
+  if (id) {
+    const oldTransactionSnapshot = await getDoc(
+      doc(firestore, "transactions", id)
+    );
+    const oldTransaction = oldTransactionSnapshot.data() as TransactionType;
+    if (
+      oldTransaction.walletId !== walletId ||
+      oldTransaction.toWalletId !== toWalletId ||
+      oldTransaction.amount !== amount
+    ) {
+      await revertTransferWallets(
+        oldTransaction.walletId,
+        oldTransaction.toWalletId,
+        oldTransaction.amount
+      );
+    }
+  }
+
+  // revert completed
+  //////////////////////////////////////////////////////////////////
+
+  // Check source wallet balance
+  const sourceWalletRef = doc(firestore, "wallets", walletId);
+  const sourceWalletSnap = await getDoc(sourceWalletRef);
+  const sourceWallet = sourceWalletSnap.data() as WalletType;
+  if (Number(sourceWallet.amount) < Number(amount)) {
+    return { success: false, msg: "Ví nguồn không đủ số dư!" };
+  }
+  // Subtract amount from source wallet
+  await updateDoc(sourceWalletRef, {
+    amount: Number(sourceWallet.amount) - Number(amount),
+  });
+
+  // Sum amount to target wallet
+  const targetWalletRef = doc(firestore, "wallets", toWalletId);
+  const targetWalletSnap = await getDoc(targetWalletRef);
+  const targetWallet = targetWalletSnap.data() as WalletType;
+  await updateDoc(targetWalletRef, {
+    amount: Number(targetWallet.amount) + Number(amount),
+  });
+  // Handle image if exists
+  if (image) {
+    const imageUploadRes = await uploadFileToStorage(image, "transactions");
+    if (!imageUploadRes.success) {
+      return {
+        success: false,
+        msg: imageUploadRes.msg || "Tải lên hình ảnh thất bại",
+      };
+    }
+    transactionData.image = imageUploadRes.data;
+  }
+  // Save transaction
+  const transactionRef = id
+    ? doc(firestore, "transactions", id)
+    : doc(collection(firestore, "transactions"));
+  await setDoc(transactionRef, transactionData, { merge: true });
+  return {
+    success: true,
+    data: { ...transactionData, id: transactionRef.id },
+  };
 };
