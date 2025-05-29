@@ -85,25 +85,19 @@ const TransactionModal = () => {
   };
 
   useEffect(() => {
-    const baseTransaction = {
-      type: oldTransaction?.type,
-      amount: Number(oldTransaction.amount),
-      description: oldTransaction.description || "",
-      date: new Date(oldTransaction.date),
-      image: oldTransaction?.image
-        ? decodeImageUrl(oldTransaction.image)
-        : null,
-      walletId: oldTransaction?.id ? oldTransaction.walletId : "",
-    };
-
     if (oldTransaction?.id) {
       setTransaction({
-        ...baseTransaction,
+        type: oldTransaction?.type,
+        amount: Number(oldTransaction.amount),
+        description: oldTransaction.description || "",
+        date: new Date(oldTransaction.date),
+        image: oldTransaction?.image
+          ? decodeImageUrl(oldTransaction.image)
+          : null,
+        walletId: oldTransaction.walletId,
         category: oldTransaction.category || "",
         toWalletId: oldTransaction.toWalletId || "",
       });
-    } else {
-      setTransaction(baseTransaction);
     }
   }, []);
 
@@ -206,7 +200,7 @@ const TransactionModal = () => {
             <Dropdown
               style={styles.dropdownContainer}
               activeColor={colors.neutral700}
-              // placeholderStyle={styles.dropdownPlaceholder}
+              placeholderStyle={styles.dropdownPlaceholder}
               selectedTextStyle={styles.dropdownSelectedItem}
               iconStyle={styles.dropdownIcon}
               data={transactionTypes}
@@ -216,7 +210,7 @@ const TransactionModal = () => {
               itemTextStyle={styles.dropdownItemText}
               itemContainerStyle={styles.dropdownItemContainer}
               containerStyle={styles.dropdownListContainer}
-              // placeholder={!isFocus ? "Select item" : "..."}
+              placeholder={"Chọn loại giao dịch"}
               value={transaction.type}
               onChange={(item) => {
                 setTransaction({ ...transaction, type: item.value });
