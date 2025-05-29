@@ -110,33 +110,37 @@ const Home = () => {
           />
         </ScrollView>
 
-        <Button
-          style={styles.floatingButton}
-          onPress={() => {
-            router.push("/(modals)/transactionModal");
-          }}
-        >
-          <Icons.Plus
-            color={colors.black}
-            weight="bold"
-            size={verticalScale(24)}
-          />
-        </Button>
-        {/* Nút scan hóa đơn */}
-        <Button
-          style={{
-            ...styles.floatingButton,
-            right: verticalScale(90),
-            backgroundColor: colors.primaryLight,
-          }}
-          onPress={handleScanReceipt}
-        >
-          <Icons.Camera
-            color={colors.black}
-            weight="bold"
-            size={verticalScale(24)}
-          />
-        </Button>
+        {/* Floating buttons group */}
+        <View style={styles.buttonContainer}>
+          <Button
+            style={StyleSheet.flatten([
+              styles.floatingButton,
+              styles.scanButton,
+            ])}
+            onPress={handleScanReceipt}
+          >
+            <Icons.Camera
+              color={colors.white}
+              weight="bold"
+              size={verticalScale(24)}
+            />
+          </Button>
+          <Button
+            style={StyleSheet.flatten([
+              styles.floatingButton,
+              styles.addButton,
+            ])}
+            onPress={() => {
+              router.push("/(modals)/transactionModal");
+            }}
+          >
+            <Icons.Plus
+              color={colors.black}
+              weight="bold"
+              size={verticalScale(24)}
+            />
+          </Button>
+        </View>
         {isVisionLoading && <OverlayLoading text="Đang nhận diện hóa đơn..." />}
       </View>
     </ScreenWrapper>
@@ -166,9 +170,21 @@ const styles = StyleSheet.create({
     height: verticalScale(50),
     width: verticalScale(50),
     borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonContainer: {
     position: "absolute",
     bottom: verticalScale(30),
     right: verticalScale(30),
+    gap: spacingY._10,
+    flexDirection: "column",
+  },
+  addButton: {
+    backgroundColor: colors.primary,
+  },
+  scanButton: {
+    backgroundColor: colors.primaryLight,
   },
   scrollViewStyle: {
     marginTop: spacingY._10,
