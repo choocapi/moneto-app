@@ -3,8 +3,8 @@
 ---
 
 ## 📱 1. SẢN PHẨM VÀ DEMO
-- Link app: https://drive.google.com/file/d/1hEbgt4ZHs78QMw9aQ2kLo11oWXJepY1z/view?usp=sharing
-- Link demo: https://youtu.be/HQu7zh0k3_U
+- Link app: https://drive.google.com/file/d/1ND_6qAoeQDPtq7BQM2nIWCrpeOxE2tap/view?usp=sharing
+- Link demo: https://youtu.be/PrfiT4jNNEY
 
 ---
 
@@ -39,7 +39,7 @@
 ### Bước 2: Cài đặt dependencies
 - npm install
 ### Bước 3: Tải bản eas build của dự án
-- Trong ứng dụng Expo Go điền url: https://expo.dev/accounts/chauminhduong.cmd/projects/Moneto/builds/0e7c17e6-ba52-48b6-9010-678d7ce1f74f
+- Trong ứng dụng Expo Go điền url: https://expo.dev/accounts/chauminhduong.cmd/projects/Moneto/builds/d171ace7-e52e-485c-84fa-f8c593c97575
 - Tải ứng dụng trong đường dẫn và cài đặt
 ### Bước 4: Chạy dự án
 - npx expo start --dev-client
