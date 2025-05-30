@@ -53,7 +53,6 @@ const Home = () => {
         router.push({
           pathname: "/(modals)/transactionModal",
           params: {
-            id: "",
             type: "expense",
             amount: amount ? amount.toString() : "",
             date: date || new Date().toISOString(),
