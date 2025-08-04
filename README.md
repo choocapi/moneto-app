@@ -33,12 +33,12 @@
 ---
 ## 4. RUN PROJECT
 
-### Bước 1: Clone dự án
+### Step 1: Clone project
 - git clone https://github.com/choocapi/moneto-app
-### Bước 2: Install dependencies
+### Step 2: Install dependencies
 - npm install
-### Bước 3: Tải bản eas build của dự án
-- Trong ứng dụng Expo Go điền url: https://expo.dev/accounts/chauminhduong.cmd/projects/Moneto/builds/d171ace7-e52e-485c-84fa-f8c593c97575
-- Tải ứng dụng trong đường dẫn và cài đặt
-### Bước 4: Chạy dự án
+### Step 3: Download eas build
+- Fill this url in Expo Go: https://expo.dev/accounts/chauminhduong.cmd/projects/Moneto/builds/d171ace7-e52e-485c-84fa-f8c593c97575
+- Download apk and install
+### Step 4: Run
 - npx expo start --dev-client
