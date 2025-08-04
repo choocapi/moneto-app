@@ -1,41 +1,41 @@
-## SỔ THU CHI MONETO
+## MONETO - EXPENSE TRACKER APP
 
 ---
 
-## 1. SẢN PHẨM
+## 1. FINISHED RPODUCT
 - Link app: https://drive.google.com/file/d/1ND_6qAoeQDPtq7BQM2nIWCrpeOxE2tap/view?usp=sharing
 
 ---
 
-## 2. TÍNH NĂNG
+## 2. KEY FEATURES
 
-- Tạo và quản lý tài khoản tài chính (ví)
-- Ghi chép thu, chi, chuyển khoản và quản lý bản ghi thu chi
-- Quét hình ảnh hoá đơn
-- Thống kê theo biểu đồ và danh sách
-- Lập và quản lý danh sách mua sắm
-- Tra cứu tỷ giá tiền tệ
-- Đồng bộ hoá các hoạt động theo thời gian thực
-- Đăng nhập bằng Google
-- Chỉnh sửa hồ sơ cá nhân, đổi mật khẩu, quên mật khẩu
+- Create and manage financial accounts (wallets)
+- Record income, expenses, transfers, and manage transaction history
+- Scan invoice images
+- Generate statistics using charts and lists
+- Create and manage shopping lists
+- Look up currency exchange rates
+- Synchronize activities in real time
+- Login with Google
+- Edit personal profiles, change password, and recover forgotten password
 
 ---
 
-## 3. CÔNG NGHỆ SỬ DỤNG
+## 3. TECHNOLOGIES USED
 
-| Công nghệ | Mô tả |
+| Technology | Description |
 |----------|-------|
-| **React Native** | Framework xây dựng ứng dụng đa nền tảng |
-| **Expo** | Bộ công cụ hỗ trợ |
-| **Firebase** | Nền tảng dịch vụ backend |
-| **Cloud Vision** | Dịch vụ xử lý hình ảnh thuộc Google Cloud |
+| **React Native** | Framework for building cross-platform applications |
+| **Expo** | Toolkit for development support |
+| **Firebase** | Backend service platform |
+| **Cloud Vision** | Image processing service from Google Cloud |
 
 ---
-## 4. HƯỚNG DẪN CHẠY DỰ ÁN
+## 4. RUN PROJECT
 
 ### Bước 1: Clone dự án
 - git clone https://github.com/choocapi/moneto-app
-### Bước 2: Cài đặt dependencies
+### Bước 2: Install dependencies
 - npm install
 ### Bước 3: Tải bản eas build của dự án
 - Trong ứng dụng Expo Go điền url: https://expo.dev/accounts/chauminhduong.cmd/projects/Moneto/builds/d171ace7-e52e-485c-84fa-f8c593c97575
